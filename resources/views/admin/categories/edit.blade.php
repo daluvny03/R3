@@ -1,19 +1,19 @@
 <x-app-layout>
-    <x-slot name="header">
-        <div class="flex items-center">
-            <a href="{{ route('admin.categories') }}" class="mr-4 text-gray-600 hover:text-gray-900">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
-                </svg>
-            </a>
-            <div>
-                <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-                    {{ __('Edit Kategori') }}
-                </h2>
-                <p class="text-sm text-gray-600 mt-1">Perbarui informasi kategori {{ $category->nama_kategori }}</p>
+    <div class="bg-gradient-to-r from-orange-500 to-orange-600">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+            <div class="flex items-center">
+                <a href="{{ route('admin.categories') }}" class="mr-4 text-white hover:text-orange-100 transition">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                    </svg>
+                </a>
+                <div>
+                    <h1 class="text-3xl font-bold text-white">Edit Kategori </h1>
+                    <p class="text-sm text-white mt-1">Perbarui informasi kategori {{ $category->nama_kategori }}</p>
+                </div>
             </div>
         </div>
-    </x-slot>
+    </div>
 
     <div class="py-12">
         <div class="max-w-3xl mx-auto sm:px-6 lg:px-8">
