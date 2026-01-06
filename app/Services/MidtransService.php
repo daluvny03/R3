@@ -99,7 +99,7 @@ class MidtransService
         $transactionStatus = $notification->transaction_status;
         $fraudStatus = $notification->fraud_status ?? null;
 
-        $status = 'pending';
+        $status = '';
 
         if ($transactionStatus == 'capture') {
             $status = ($fraudStatus == 'accept') ? 'success' : 'pending';
