@@ -1,6 +1,7 @@
 import './bootstrap';
 
 import Alpine from 'alpinejs';
+import './kasir';
 
 window.Alpine = Alpine;
 document.addEventListener('alpine:init', () => {
