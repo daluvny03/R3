@@ -103,6 +103,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         // Transaction History (optional)
         Route::get('/history', [KasirController::class, 'history'])->name('history');
     });
+    Route::get('/transactions/{transaction}', [AdminController::class, 'showTransaction'])->name('transactions.show');
 
     // ==================== ADMIN ROUTES ====================
     Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {

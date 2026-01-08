@@ -234,7 +234,7 @@
 
     <script>
         function viewTransaction(id) {
-            fetch(`/admin/transactions/${id}`)
+            fetch(`/transactions/${id}`)
                 .then(response => response.json())
                 .then(data => {
                     let itemsHtml = '';
