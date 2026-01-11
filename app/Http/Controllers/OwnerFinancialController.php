@@ -221,7 +221,7 @@ class OwnerFinancialController extends Controller
                   });
             })
             ->where('status', 'selesai')
-            ->whereIn('metode_pembayaran', ['bank', 'transfer', 'debit'])
+            ->whereIn('metode_pembayaran', ['bank', 'transfer', 'debit', 'qris'])
             ->sum('total_harga');
         
         // Expenses dari Kas & Bank
