@@ -67,7 +67,7 @@ document.addEventListener('alpine:init', () => {
                             this.toast('Stok tidak mencukupi!', 'error');
                         }
                     } else {
-                        this.cart.push({
+                        this.cart.unshift({
                             ...product,
                             qty: 1
                         });

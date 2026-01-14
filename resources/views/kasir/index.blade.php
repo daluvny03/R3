@@ -118,7 +118,7 @@
                             @click="loadSavedOrder(index)">
                             <div class="flex justify-between items-start mb-2">
                                 <div>
-                                    <p class="font-bold text-gray-800 text-sm">Order #<span
+                                    <p class="font-bold text-gray-800 text-sm">Pesanan #<span
                                             x-text="order.orderNumber"></span></p>
                                     <p class="text-xs text-gray-500" x-text="order.savedTime"></p>
                                 </div>
@@ -216,8 +216,8 @@
                             </svg>
                         </div>
                         <div>
-                            <h2 class="font-bold text-gray-800">Order Menu</h2>
-                            <p class="text-xs text-gray-500">Order No. <span x-text="orderNumber"></span></p>
+                            <h2 class="font-bold text-gray-800">Menu Pesanan</h2>
+                            <p class="text-xs text-gray-500">Pesanan No. <span x-text="orderNumber"></span></p>
                         </div>
                     </div>
                     <button @click="saveCurrentOrder()" :disabled="cart.length === 0"
@@ -311,7 +311,7 @@
                     </button>
                     <button @click="showPaymentModal = true" :disabled="cart.length === 0"
                         class="col-span-2 bg-white text-orange-600 py-3 rounded-xl font-bold text-lg hover:bg-opacity-90 transition-all disabled:bg-gray-300 disabled:text-gray-500 disabled:cursor-not-allowed shadow-lg">
-                        Order
+                        Pesan
                     </button>
                 </div>
             </div>
