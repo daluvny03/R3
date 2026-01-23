@@ -1,23 +1,82 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <meta charset="utf-8">
     <title>Laporan Penjualan</title>
     <style>
-        body { font-family: Arial, sans-serif; margin: 40px; }
-        h1 { text-align: center; margin-bottom: 10px; }
-        .subtitle { text-align: center; color: #666; margin-bottom: 30px; }
-        .summary { background: #f3f4f6; padding: 20px; border-radius: 8px; margin-bottom: 30px; }
-        .summary-item { display: flex; justify-content: space-between; padding: 5px 0; }
-        .section { margin-top: 30px; }
-        .section-title { font-weight: bold; font-size: 16px; margin-bottom: 15px; color: #333; border-bottom: 2px solid #333; padding-bottom: 5px; }
-        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
-        th { background: #e5e7eb; padding: 10px; text-align: left; font-size: 12px; border: 1px solid #d1d5db; }
-        td { padding: 8px; font-size: 12px; border: 1px solid #d1d5db; }
-        .amount { text-align: right; }
-        .text-right { text-align: right; }
+        body {
+            font-family: Arial, sans-serif;
+            margin: 40px;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+        }
+
+        .summary {
+            background: #f3f4f6;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+        }
+
+        .summary-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 5px 0;
+        }
+
+        .section {
+            margin-top: 30px;
+        }
+
+        .section-title {
+            font-weight: bold;
+            font-size: 16px;
+            margin-bottom: 15px;
+            color: #333;
+            border-bottom: 2px solid #333;
+            padding-bottom: 5px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        th {
+            background: #e5e7eb;
+            padding: 10px;
+            text-align: left;
+            font-size: 12px;
+            border: 1px solid #d1d5db;
+        }
+
+        td {
+            padding: 8px;
+            font-size: 12px;
+            border: 1px solid #d1d5db;
+        }
+
+        .amount {
+            text-align: right;
+        }
+
+        .text-right {
+            text-align: right;
+        }
     </style>
 </head>
+
 <body>
     <h1>LAPORAN PENJUALAN</h1>
     <div class="subtitle">{{ $periode }}</div>
@@ -50,14 +109,14 @@
                 </tr>
             </thead>
             <tbody>
-                @foreach($produkTerlaris as $index => $produk)
-                <tr>
-                    <td>{{ $index + 1 }}</td>
-                    <td>{{ $produk->nama_produk }}</td>
-                    <td>{{ $produk->kategori }}</td>
-                    <td class="text-right">{{ $produk->total_terjual }} unit</td>
-                    <td class="text-right">Rp {{ number_format($produk->total_pendapatan, 0, ',', '.') }}</td>
-                </tr>
+                @foreach ($produkTerlaris as $index => $produk)
+                    <tr>
+                        <td>{{ $index + 1 }}</td>
+                        <td>{{ $produk->nama_produk }}</td>
+                        <td>{{ $produk->kategori }}</td>
+                        <td class="text-right">{{ $produk->total_terjual }} unit</td>
+                        <td class="text-right">Rp {{ number_format($produk->total_pendapatan, 0, ',', '.') }}</td>
+                    </tr>
                 @endforeach
             </tbody>
         </table>
@@ -74,12 +133,12 @@
                 </tr>
             </thead>
             <tbody>
-                @foreach($penjualanPerMetode as $metode)
-                <tr>
-                    <td>{{ ucfirst($metode->metode_pembayaran) }}</td>
-                    <td class="text-right">{{ $metode->jumlah_transaksi }}</td>
-                    <td class="text-right">Rp {{ number_format($metode->total_penjualan, 0, ',', '.') }}</td>
-                </tr>
+                @foreach ($penjualanPerMetode as $metode)
+                    <tr>
+                        <td>{{ ucfirst($metode->metode_pembayaran) }}</td>
+                        <td class="text-right">{{ $metode->jumlah_transaksi }}</td>
+                        <td class="text-right">Rp {{ number_format($metode->total_penjualan, 0, ',', '.') }}</td>
+                    </tr>
                 @endforeach
             </tbody>
         </table>
@@ -96,15 +155,33 @@
                 </tr>
             </thead>
             <tbody>
-                @foreach($penjualanPerKasir as $kasir)
-                <tr>
-                    <td>{{ $kasir->name }}</td>
-                    <td class="text-right">{{ $kasir->jumlah_transaksi }}</td>
-                    <td class="text-right">Rp {{ number_format($kasir->total_penjualan, 0, ',', '.') }}</td>
-                </tr>
+                @foreach ($penjualanPerKasir as $kasir)
+                    <tr>
+                        <td>{{ $kasir->name }}</td>
+                        <td class="text-right">{{ $kasir->jumlah_transaksi }}</td>
+                        <td class="text-right">Rp {{ number_format($kasir->total_penjualan, 0, ',', '.') }}</td>
+                    </tr>
                 @endforeach
             </tbody>
         </table>
     </div>
+    <hr style="margin-top:40px">
+
+    <table width="100%" style="margin-top:30px;">
+        <tr>
+            <td width="60%"></td>
+            <td width="40%" align="center">
+                <p>Disahkan oleh,</p>
+                <p><strong>Ertiga POS</strong></p>
+
+                <img src="{{ public_path('images/logo-ertiga.png') }}" width="120" style="margin:15px 0">
+
+                <p style="margin-top:10px;">
+                    Tanggal: {{ now()->format('d F Y') }}
+                </p>
+            </td>
+        </tr>
+    </table>
 </body>
+
 </html>

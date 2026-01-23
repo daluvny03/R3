@@ -41,5 +41,22 @@
             <span class="amount">Rp {{ number_format($modal, 0, ',', '.') }}</span>
         </div>
     </div>
+    <hr style="margin-top:40px">
+
+    <table width="100%" style="margin-top:30px;">
+        <tr>
+            <td width="60%"></td>
+            <td width="40%" align="center">
+                <p>Disahkan oleh,</p>
+                <p><strong>Ertiga POS</strong></p>
+
+                <img src="{{ public_path('images/logo-ertiga.png') }}" width="120" style="margin:15px 0">
+
+                <p style="margin-top:10px;">
+                    Tanggal: {{ now()->format('d F Y') }}
+                </p>
+            </td>
+        </tr>
+    </table>
 </body>
 </html>
