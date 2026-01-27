@@ -556,8 +556,8 @@ PROMPT;
             ->selectRaw('COUNT(*) as transactions, SUM(total_harga) as revenue')
             ->first();
 
-        $revenueGrowth = $firstHalf->revenue > 0 
-            ? (($secondHalf->revenue - $firstHalf->revenue) / $firstHalf->revenue) * 100 
+        $revenueGrowth = $firstHalf->revenue > 0
+            ? (($secondHalf->revenue - $firstHalf->revenue) / $firstHalf->revenue) * 100
             : 0;
 
         // Best & worst days
@@ -626,14 +626,16 @@ PROMPT;
     private function prepareStockData()
     {
         // Critical items - produk yang akan habis dalam 7 hari
-        $criticalItems = DB::table('products')
-            ->leftJoin('transaction_items', 'products.id', '=', 'transaction_items.product_id')
-            ->leftJoin('transactions', function($join) {
-                $join->on('transaction_items.transaction_id', '=', 'transactions.id')
-                     ->where('transactions.status', '=', 'selesai')
-                     ->where('transactions.tanggal_transaksi', '>=', Carbon::now()->subDays(90));
-            })
-            ->selectRaw('
+        $criticalItems = DB::query()
+            ->fromSub(function ($q) {
+                $q->from('products')
+                    ->leftJoin('transaction_items', 'products.id', '=', 'transaction_items.product_id')
+                    ->leftJoin('transactions', function ($join) {
+                        $join->on('transaction_items.transaction_id', '=', 'transactions.id')
+                            ->where('transactions.status', 'selesai')
+                            ->where('transactions.tanggal_transaksi', '>=', Carbon::now()->subDays(90));
+                    })
+                    ->selectRaw('
                 products.id,
                 products.nama_produk as name,
                 products.kategori as category,
@@ -643,36 +645,33 @@ PROMPT;
                 COALESCE(SUM(transaction_items.jumlah), 0) as sales_90d,
                 COALESCE(SUM(transaction_items.jumlah) / 90, 0) as daily_velocity
             ')
-            ->groupBy('products.id', 'products.nama_produk', 'products.kategori', 'products.stok', 'products.harga_beli', 'products.harga_jual')
-            ->havingRaw('products.stok < (daily_velocity * 7) AND daily_velocity > 0.1')
-            ->orderByRaw('products.stok / daily_velocity')
+                    ->groupBy(
+                        'products.id',
+                        'products.nama_produk',
+                        'products.kategori',
+                        'products.stok',
+                        'products.harga_beli',
+                        'products.harga_jual'
+                    );
+            }, 't')
+            ->whereRaw('t.current_stock < (t.daily_velocity * 7)')
+            ->whereRaw('t.daily_velocity > 0.1')
+            ->orderByRaw('t.current_stock / t.daily_velocity')
             ->limit(10)
-            ->get()
-            ->map(function($item) {
-                return [
-                    'id' => $item->id,
-                    'name' => $item->name,
-                    'category' => $item->category,
-                    'current_stock' => $item->current_stock,
-                    'sales_velocity_per_day' => round($item->daily_velocity, 2),
-                    'days_until_stockout' => $item->daily_velocity > 0 
-                        ? round($item->current_stock / $item->daily_velocity, 1) 
-                        : 999,
-                    'buy_price' => (int)$item->buy_price,
-                    'sell_price' => (int)$item->sell_price
-                ];
-            })
-            ->toArray();
+            ->get();
+
 
         // Overstock items - stok lebih dari 60 hari
-        $overstockItems = DB::table('products')
-            ->leftJoin('transaction_items', 'products.id', '=', 'transaction_items.product_id')
-            ->leftJoin('transactions', function($join) {
-                $join->on('transaction_items.transaction_id', '=', 'transactions.id')
-                     ->where('transactions.status', '=', 'selesai')
-                     ->where('transactions.tanggal_transaksi', '>=', Carbon::now()->subDays(90));
-            })
-            ->selectRaw('
+        $overstockItems = DB::query()
+            ->fromSub(function ($q) {
+                $q->from('products')
+                    ->leftJoin('transaction_items', 'products.id', '=', 'transaction_items.product_id')
+                    ->leftJoin('transactions', function ($join) {
+                        $join->on('transaction_items.transaction_id', '=', 'transactions.id')
+                            ->where('transactions.status', 'selesai')
+                            ->where('transactions.tanggal_transaksi', '>=', Carbon::now()->subDays(90));
+                    })
+                    ->selectRaw('
                 products.id,
                 products.nama_produk as name,
                 products.kategori as category,
@@ -680,33 +679,28 @@ PROMPT;
                 COALESCE(SUM(transaction_items.jumlah) / 90, 0) as daily_velocity,
                 products.stok * products.harga_beli as locked_capital
             ')
-            ->groupBy('products.id', 'products.nama_produk', 'products.kategori', 'products.stok', 'products.harga_beli')
-            ->havingRaw('products.stok > (daily_velocity * 60) AND products.stok > 10')
-            ->orderByDesc('locked_capital')
+                    ->groupBy(
+                        'products.id',
+                        'products.nama_produk',
+                        'products.kategori',
+                        'products.stok',
+                        'products.harga_beli'
+                    );
+            }, 't')
+            ->whereRaw('t.current_stock > (t.daily_velocity * 60)')
+            ->whereRaw('t.current_stock > 10')
+            ->orderByDesc('t.locked_capital')
             ->limit(10)
-            ->get()
-            ->map(function($item) {
-                return [
-                    'id' => $item->id,
-                    'name' => $item->name,
-                    'category' => $item->category,
-                    'current_stock' => $item->current_stock,
-                    'daily_velocity' => round($item->daily_velocity, 2),
-                    'excess_days' => $item->daily_velocity > 0 
-                        ? round($item->current_stock / $item->daily_velocity) 
-                        : 999,
-                    'locked_capital' => (int)$item->locked_capital
-                ];
-            })
-            ->toArray();
+            ->get();
+
 
         // Fast moving - top 10 produk paling laku
         $fastMoving = DB::table('products')
             ->join('transaction_items', 'products.id', '=', 'transaction_items.product_id')
-            ->join('transactions', function($join) {
+            ->join('transactions', function ($join) {
                 $join->on('transaction_items.transaction_id', '=', 'transactions.id')
-                     ->where('transactions.status', '=', 'selesai')
-                     ->where('transactions.tanggal_transaksi', '>=', Carbon::now()->subDays(90));
+                    ->where('transactions.status', '=', 'selesai')
+                    ->where('transactions.tanggal_transaksi', '>=', Carbon::now()->subDays(90));
             })
             ->selectRaw('
                 products.id,
@@ -718,7 +712,7 @@ PROMPT;
             ->orderByDesc('daily_velocity')
             ->limit(10)
             ->get()
-            ->map(function($item) {
+            ->map(function ($item) {
                 return [
                     'id' => $item->id,
                     'name' => $item->name,
@@ -730,22 +724,22 @@ PROMPT;
 
         // Slow moving / dead stock - tidak laku 60 hari
         $slowMoving = DB::table('products')
-            ->leftJoin('transaction_items', function($join) {
+            ->leftJoin('transaction_items', function ($join) {
                 $join->on('products.id', '=', 'transaction_items.product_id')
-                     ->whereExists(function($query) {
-                         $query->select(DB::raw(1))
-                               ->from('transactions')
-                               ->whereColumn('transactions.id', 'transaction_items.transaction_id')
-                               ->where('transactions.status', 'selesai')
-                               ->where('transactions.tanggal_transaksi', '>=', Carbon::now()->subDays(60));
-                     });
+                    ->whereExists(function ($query) {
+                        $query->select(DB::raw(1))
+                            ->from('transactions')
+                            ->whereColumn('transactions.id', 'transaction_items.transaction_id')
+                            ->where('transactions.status', 'selesai')
+                            ->where('transactions.tanggal_transaksi', '>=', Carbon::now()->subDays(60));
+                    });
             })
             ->whereNull('transaction_items.id')
             ->where('products.stok', '>', 0)
             ->select('products.id', 'products.nama_produk as name', 'products.kategori as category', 'products.stok as current_stock')
             ->limit(10)
             ->get()
-            ->map(function($item) {
+            ->map(function ($item) {
                 return [
                     'id' => $item->id,
                     'name' => $item->name,
@@ -795,7 +789,7 @@ PROMPT;
             ->groupBy('products.kategori')
             ->orderByDesc('total_sales')
             ->get()
-            ->map(function($item) {
+            ->map(function ($item) {
                 return [
                     'category' => $item->kategori,
                     'total_sales' => (int)$item->total_sales,
@@ -822,7 +816,7 @@ PROMPT;
             ->orderByDesc('revenue')
             ->limit(5)
             ->get()
-            ->map(function($item) {
+            ->map(function ($item) {
                 return [
                     'product_name' => $item->nama_produk,
                     'category' => $item->kategori,
@@ -857,9 +851,9 @@ PROMPT;
             ->havingRaw('prev_30d_sales > 5 AND last_30d_sales < prev_30d_sales * 0.6')
             ->limit(5)
             ->get()
-            ->map(function($item) {
-                $decline = $item->prev_30d_sales > 0 
-                    ? (($item->prev_30d_sales - $item->last_30d_sales) / $item->prev_30d_sales) * 100 
+            ->map(function ($item) {
+                $decline = $item->prev_30d_sales > 0
+                    ? (($item->prev_30d_sales - $item->last_30d_sales) / $item->prev_30d_sales) * 100
                     : 0;
                 return [
                     'product_name' => $item->nama_produk,
@@ -888,7 +882,9 @@ PROMPT;
             ->orderByDesc('transactions')
             ->limit(3)
             ->pluck('hour')
-            ->map(function($h) { return $h . ':00-' . ($h+1) . ':00'; })
+            ->map(function ($h) {
+                return $h . ':00-' . ($h + 1) . ':00';
+            })
             ->toArray();
 
         return [
@@ -998,7 +994,7 @@ PROMPT;
             ->groupBy('metode_pembayaran')
             ->orderByDesc('count')
             ->get()
-            ->map(function($item) {
+            ->map(function ($item) {
                 return [
                     'method' => $item->metode_pembayaran,
                     'transaction_count' => $item->count,
@@ -1020,7 +1016,7 @@ PROMPT;
             ->orderByDesc('transactions')
             ->limit(3)
             ->get()
-            ->map(function($item) {
+            ->map(function ($item) {
                 return [
                     'time_range' => $item->hour . ':00 - ' . ($item->hour + 1) . ':00',
                     'transactions' => $item->transactions,
