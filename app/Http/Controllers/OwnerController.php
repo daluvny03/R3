@@ -2,13 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Payment;
-use App\Models\Product;
 use App\Models\Transaction;
 use App\Models\TransactionItem;
-use App\Models\User;
 use App\Services\ClaudeAIService;
-use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
 use App\Models\Analysis_AI;
 use Illuminate\Http\Request;

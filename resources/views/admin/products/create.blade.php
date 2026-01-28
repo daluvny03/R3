@@ -97,7 +97,7 @@
                                 </label>
                                 <div class="relative">
                                     <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 font-medium">Rp</span>
-                                    <input type="number" 
+                                    <input type="text" 
                                            name="harga_beli" 
                                            id="harga_beli" 
                                            value="{{ old('harga_beli') }}"
@@ -114,7 +114,7 @@
                                 </label>
                                 <div class="relative">
                                     <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 font-medium">Rp</span>
-                                    <input type="number" 
+                                    <input type="text" 
                                            name="harga_jual" 
                                            id="harga_jual" 
                                            value="{{ old('harga_jual') }}"
@@ -132,7 +132,7 @@
                                 <label for="stok" class="block text-sm font-semibold text-gray-700 mb-2">
                                     Stok Awal <span class="text-red-500">*</span>
                                 </label>
-                                <input type="number" 
+                                <input type="text" 
                                        name="stok" 
                                        id="stok" 
                                        value="{{ old('stok', 0) }}"
